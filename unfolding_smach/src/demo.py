@@ -145,8 +145,8 @@ class Initialize(NestedStateMachine):
         joint_states = dict(zip(joint_states_msg.name, joint_states_msg.position))
         l_eps = joint_states['l_gripper_joint']
         r_eps = joint_states['r_gripper_joint']
-        rel_tol = 0.1
-        abs_tol = 0.0001
+        rel_tol = 0.0118
+        abs_tol = 0.00028
         l_has_obj_min = l_eps + max(abs_tol, abs(l_eps*rel_tol))
         r_has_obj_min = r_eps + max(abs_tol, abs(l_eps*rel_tol))
         rospy.set_param('l_has_obj_min', l_has_obj_min)
