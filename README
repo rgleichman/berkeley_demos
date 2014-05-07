@@ -6,11 +6,12 @@
 Our code is laid out in five stacks. In order to use it, please check out the following packages:
 
 From rgleichman:
-berkeley_demos  folding pr2_simple_motions 
+berkeley_demos pr2_simple_motions 
 
 From RLL:
 berkeley_utils
 visual_feedback
+folding
 ~~~~~~~~~~~~~~~~~~~~~~
 pr2_simple_motions
 ~~~~~~~~~~~~~~~~~~~~~~
