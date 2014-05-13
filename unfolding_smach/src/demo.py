@@ -414,7 +414,7 @@ class FoldLeft(SuccessFailureState):
         up_z = z+sqrt( (ctr_l_x - ctr_r_x)**2 + (ctr_l_y - ctr_r_y)**2) / 3.0
 
         pitch = pi/2
-        if not GripUtils.go_to(x=ctr_ml_x,y=ctr_ml_y,z=up_z,roll=roll,yaw=yaw,pitch=pitch,arm="l",frame=frame,grip=True,dur=5.0):
+        if not GripUtils.go_to(x=ctr_ml_x,y=ctr_ml_y-0.01,z=up_z,roll=roll,yaw=yaw,pitch=pitch,arm="l",frame=frame,grip=True,dur=5.0):
             GripUtils.open_gripper("l")
             GripUtils.recall_arm("l")
             return FAILURE
@@ -422,10 +422,10 @@ class FoldLeft(SuccessFailureState):
             GripUtils.open_gripper("l")
             GripUtils.recall_arm("l")
             return FAILURE
-        z = bl_z + 0.01 # bit too low
+        z = bl_z + 0.005 # bit too low
         pitch = 3*pi/4
         
-        if not GripUtils.go_to(x=ctr_mr_x,y=ctr_mr_y+0.02,z=z,roll=roll,yaw=yaw,pitch=pitch,arm="l",frame=frame,grip=True,dur=5.0):
+        if not GripUtils.go_to(x=ctr_mr_x,y=ctr_mr_y+0.03,z=z,roll=roll,yaw=yaw,pitch=pitch,arm="l",frame=frame,grip=True,dur=5.0):
             GripUtils.open_gripper("l")
             GripUtils.recall_arm("l")
             return FAILURE
@@ -476,7 +476,7 @@ class FoldRight(SuccessFailureState):
         roll = pi/2
         pitch = pi/4
 
-        if not GripUtils.grab(x=ctr_r_x,y=ctr_r_y-0.01,z=z,roll=roll,yaw=yaw,pitch=pitch,arm="r",frame=frame):
+        if not GripUtils.grab(x=ctr_r_x,y=ctr_r_y,z=z+0.0025,roll=roll,yaw=yaw,pitch=pitch,arm="r",frame=frame):
             GripUtils.open_gripper("r")
             GripUtils.recall_arm("r")
             return FAILURE
@@ -585,6 +585,7 @@ class GenericUserData:
 def main(args):
     rospy.init_node("unfolding_smach_demo_node")
    
+    #GripUtils.create_optical_subscribers()
     sm = OuterStateMachine(DEFAULT_OUTCOMES)
     sis = smach_ros.IntrospectionServer('unfolding_smach_server', sm, '/MAIN')
     sis.start()
