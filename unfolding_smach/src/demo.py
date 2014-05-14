@@ -109,9 +109,9 @@ class PickupCorner(SuccessFailureState):
         # Offsets for safety
         if arm == "l":
             y_offset = -0.02
-            z_offset = 0.01
+            z_offset = 0.0175
         else:
-            y_offset = 0.02
+            y_offset = 0.00
             x_offset = 0.02
         if self.side == "t":
             x_offset = -0.01
@@ -168,7 +168,7 @@ class ClumpToTriangle(NestedStateMachine):
         self.add('Recall_Left', RecallArm('l'),{SUCCESS:'Spread_Out_Right',FAILURE:FAILURE})
         self.add('Spread_Out_Right', SpreadAcross('r',TABLE_WIDTH,towel_width),{SUCCESS:'Pickup_Left',FAILURE:FAILURE})
         self.add('Pickup_Left', PickupCorner('l',let_go=False,side="t"),{SUCCESS:'Shake_Triangle',FAILURE:'Reset'})
-        self.add('Shake_Triangle',ShakeBothArms(2,violent=False),{SUCCESS:'Layout_Triangle',FAILURE:'Layout_Triangle'})
+        self.add('Shake_Triangle',ShakeBothArms(3,violent=False),{SUCCESS:'Layout_Triangle',FAILURE:'Layout_Triangle'})
         self.add('Layout_Triangle', SpreadOut(0.48),{SUCCESS:SUCCESS,FAILURE:FAILURE})
         self.add('Reset',Reset(),{SUCCESS:'Pick_Up_Clump',FAILURE:FAILURE})
         
@@ -179,7 +179,7 @@ class TriangleToRectangle(NestedStateMachine):
         NestedStateMachine.__init__(self,title,transitions=transitions,outcomes=DEFAULT_OUTCOMES)
         self.add('Grab_Triangle', GrabTriangle(), {SUCCESS:'Shake_Towel', FAILURE: FAILURE})
         self.add('Shake_Towel',ShakeBothArms(1,violent=False),{SUCCESS:'Layout_Towel',FAILURE:'Layout_Towel'})
-        self.add('Layout_Towel',SpreadOut(0.53),{SUCCESS:SUCCESS,FAILURE:FAILURE}) #was 0.43
+        self.add('Layout_Towel',SpreadOut(0.50),{SUCCESS:SUCCESS,FAILURE:FAILURE}) #was 0.43
 
 class GrabTriangle(SuccessFailureState):
     def __init__(self):
@@ -209,7 +209,7 @@ class GrabTriangle(SuccessFailureState):
             left = not left
         if left:
             GripUtils.recall_arm("l")
-            if GripUtils.grab_point(pt_l,roll=pi/2,yaw=-pi/3,pitch=pi/4,arm="l",x_offset=0.005):
+            if GripUtils.grab_point(pt_l,roll=pi/2,yaw=-pi/3,pitch=pi/4,arm="l",x_offset=0.005,z_offset=0.0025):
                 pr2_say(talk_spreadout)
                 return SUCCESS
             else:
@@ -246,7 +246,7 @@ class FlipTowel(NestedStateMachine):
         NestedStateMachine.__init__(self,title,transitions=transitions,outcomes=DEFAULT_OUTCOMES,input_keys=["bl","tl","tr","br"])
         #self.add('Detect_Towel', DetectTowel(), {SUCCESS:'Pickup_Towel', FAILURE:FAILURE})
         self.add('Pickup_Towel', PickupTowel(), {SUCCESS:'Layout_Towel', FAILURE:FAILURE})
-        self.add('Layout_Towel', SpreadOut(0.47,recall=True),{SUCCESS:SUCCESS,FAILURE:FAILURE})        
+        self.add('Layout_Towel', SpreadOut(0.43,recall=True),{SUCCESS:SUCCESS,FAILURE:FAILURE})        
 
         
 class DetectTowel(SuccessFailureState):
@@ -333,9 +333,9 @@ class Fold1(SuccessFailureState):
             return FAILURE
         '''
         #FIXME: For some reason large offsets required, #DEBUG
-        if not GripUtils.grab_points(pt_tl,roll_l=-pi/2,yaw_l=-pi/3,pitch_l=pi/4,x_offset_l=-0.06, z_offset_l=0.015
+        if not GripUtils.grab_points(pt_tl,roll_l=-pi/2,yaw_l=-pi/3,pitch_l=pi/4,x_offset_l=-0.05, z_offset_l=-0.0025
                                     ,point_r=pt_tr,roll_r=pi/2,yaw_r= pi/3,pitch_r=pi/4,x_offset_r=-0.06,
-                                    y_offset_r=0.02, y_offset_l=-0.025, z_offset_r=0.01):
+                                    y_offset_r=0.00, y_offset_l=-0.00, z_offset_r=0.01):
             return FAILURE
         (bl_x,bl_y,bl_z) = (pt_bl.point.x,pt_bl.point.y,pt_bl.point.z)
         (tl_x,tl_y,tl_z) = (pt_tl.point.x,pt_tl.point.y,pt_tl.point.z)
@@ -393,13 +393,13 @@ class FoldLeft(SuccessFailureState):
 
         ctr_l_x = .75*bl_x + .25*tl_x
         ctr_l_y = .75*bl_y + .25*tl_y
-        z = bl_z + 0.01 # bit too low
+        z = bl_z + 0.005
         yaw = -pi/2
         roll = -pi/2
         pitch = pi/4
         frame = pt_bl.header.frame_id
 
-        if not GripUtils.grab(x=ctr_l_x,y=ctr_l_y,z=z,roll=roll,yaw=yaw,pitch=pitch,arm="l",frame=frame):
+        if not GripUtils.grab(x=ctr_l_x,y=ctr_l_y-0.01,z=z,roll=roll,yaw=yaw,pitch=pitch,arm="l",frame=frame):
             GripUtils.open_gripper("l")
             GripUtils.recall_arm("l")
             return FAILURE
